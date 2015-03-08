@@ -48,6 +48,11 @@ public final class Entry implements Describable<Entry> {
     public boolean noUploadOnFailure;
 
     /**
+     * Make the build sucessful even if there is a failure in the S3 plugin
+     */
+    public boolean passTheBuildUnderS3Failure;
+
+    /**
      * Upload either from the slave or the master
      */
     public boolean uploadFromSlave;
@@ -92,7 +97,7 @@ public final class Entry implements Describable<Entry> {
     public Entry(String bucket, String sourceFile, String excludedFile, String storageClass, String selectedRegion,
                  boolean noUploadOnFailure, boolean uploadFromSlave, boolean managedArtifacts,
                  boolean useServerSideEncryption, boolean flatten, boolean gzipFiles, boolean keepForever,
-                 boolean showDirectlyInBrowser, List<MetadataPair> userMetadata) {
+                 boolean showDirectlyInBrowser, List<MetadataPair> userMetadata, boolean passTheBuildUnderS3Failure) {
         this.bucket = bucket;
         this.sourceFile = sourceFile;
         this.excludedFile = excludedFile;
@@ -107,6 +112,7 @@ public final class Entry implements Describable<Entry> {
         this.keepForever = keepForever;
         this.userMetadata = userMetadata;
         this.showDirectlyInBrowser = showDirectlyInBrowser;
+        this.passTheBuildUnderS3Failure = passTheBuildUnderS3Failure;
     }
 
     @Override

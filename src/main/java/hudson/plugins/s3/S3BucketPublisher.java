@@ -123,8 +123,9 @@ public final class S3BucketPublisher extends Recorder implements SimpleBuildStep
     }
 
     @Override
+
     public void perform(@Nonnull Run<?, ?> run, @Nonnull FilePath ws, @Nonnull Launcher launcher, @Nonnull TaskListener listener)
-            throws InterruptedException {
+            throws InterruptedException, IOException {
         final PrintStream console = listener.getLogger();
         if (Result.ABORTED.equals(run.getResult())) {
             log(console, "Skipping publishing on S3 because build aborted");
@@ -216,7 +217,11 @@ public final class S3BucketPublisher extends Recorder implements SimpleBuildStep
             }
         } catch (IOException e) {
             e.printStackTrace(listener.error("Failed to upload files"));
-            run.setResult(Result.UNSTABLE);
+            if (!entry.passTheBuildUnderS3Failure)
+                run.setResult(Result.UNSTABLE);
+        } catch (Exception e) {
+            if (!entry.passTheBuildUnderS3Failure)
+                run.setResult(Result.UNSTABLE);
         }
     }
 
