@@ -127,6 +127,7 @@ public final class S3BucketPublisher extends Recorder implements SimpleBuildStep
     public void perform(@Nonnull Run<?, ?> run, @Nonnull FilePath ws, @Nonnull Launcher launcher, @Nonnull TaskListener listener)
             throws InterruptedException, IOException {
         final PrintStream console = listener.getLogger();
+        boolean passTheBuildUnderS3Failure = false;
         if (Result.ABORTED.equals(run.getResult())) {
             log(console, "Skipping publishing on S3 because build aborted");
             return;
@@ -153,6 +154,7 @@ public final class S3BucketPublisher extends Recorder implements SimpleBuildStep
             final List<FingerprintRecord> artifacts = Lists.newArrayList();
 
             for (Entry entry : entries) {
+                passTheBuildUnderS3Failure = entry.passTheBuildUnderS3Failure;
                 if (entry.noUploadOnFailure && Result.FAILURE.equals(run.getResult())) {
                     // build failed. don't post
                     log(console, "Skipping publishing on S3 because build failed");
@@ -217,10 +219,10 @@ public final class S3BucketPublisher extends Recorder implements SimpleBuildStep
             }
         } catch (IOException e) {
             e.printStackTrace(listener.error("Failed to upload files"));
-            if (!entry.passTheBuildUnderS3Failure)
+            if (passTheBuildUnderS3Failure)
                 run.setResult(Result.UNSTABLE);
         } catch (Exception e) {
-            if (!entry.passTheBuildUnderS3Failure)
+            if (passTheBuildUnderS3Failure)
                 run.setResult(Result.UNSTABLE);
         }
     }
