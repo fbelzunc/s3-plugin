@@ -7,6 +7,8 @@ import hudson.model.Descriptor;
 import hudson.util.ListBoxModel;
 import org.kohsuke.stapler.DataBoundConstructor;
 
+import java.util.List;
+
 public final class Entry implements Describable<Entry> {
 
     /**
@@ -18,6 +20,11 @@ public final class Entry implements Describable<Entry> {
      * Can contain macros and wildcards.
      */
     public String sourceFile;
+    /**
+     * File name relative to the workspace root to be excluded from upload.
+     * Can contain macros and wildcards.
+     */
+    public String excludedFile;
     /**
      * options for x-amz-storage-class can be STANDARD or REDUCED_REDUNDANCY
      */
@@ -41,6 +48,11 @@ public final class Entry implements Describable<Entry> {
     public boolean noUploadOnFailure;
 
     /**
+     * Make the build sucessful even if there is a failure in the S3 plugin
+     */
+    public boolean passTheBuildUnderS3Failure;
+
+    /**
      * Upload either from the slave or the master
      */
     public boolean uploadFromSlave;
@@ -60,12 +72,35 @@ public final class Entry implements Describable<Entry> {
      */
     public boolean flatten;
 
+    /**
+    * use GZIP to compress files
+    */
+    public boolean gzipFiles;
+
+    /**
+     * show content of entity directly in browser
+     */
+    public boolean showDirectlyInBrowser;
+
+    /**
+     * Don't delete artifacts in Amazon after job was rotated
+     */
+
+    public boolean keepForever;
+
+    /**
+    * Metadata overrides
+    */
+    public List<MetadataPair> userMetadata;
+
     @DataBoundConstructor
-    public Entry(String bucket, String sourceFile, String storageClass, String selectedRegion,
+    public Entry(String bucket, String sourceFile, String excludedFile, String storageClass, String selectedRegion,
                  boolean noUploadOnFailure, boolean uploadFromSlave, boolean managedArtifacts,
-                 boolean useServerSideEncryption, boolean flatten) {
+                 boolean useServerSideEncryption, boolean flatten, boolean gzipFiles, boolean keepForever,
+                 boolean showDirectlyInBrowser, List<MetadataPair> userMetadata, boolean passTheBuildUnderS3Failure) {
         this.bucket = bucket;
         this.sourceFile = sourceFile;
+        this.excludedFile = excludedFile;
         this.storageClass = storageClass;
         this.selectedRegion = selectedRegion;
         this.noUploadOnFailure = noUploadOnFailure;
@@ -73,14 +108,20 @@ public final class Entry implements Describable<Entry> {
         this.managedArtifacts = managedArtifacts;
         this.useServerSideEncryption = useServerSideEncryption;
         this.flatten = flatten;
+        this.gzipFiles = gzipFiles;
+        this.keepForever = keepForever;
+        this.userMetadata = userMetadata;
+        this.showDirectlyInBrowser = showDirectlyInBrowser;
+        this.passTheBuildUnderS3Failure = passTheBuildUnderS3Failure;
     }
 
+    @Override
     public Descriptor<Entry> getDescriptor() {
         return DESCRIPOR;
     }
 
     @Extension
-    public final static DescriptorImpl DESCRIPOR = new DescriptorImpl();
+    public static final DescriptorImpl DESCRIPOR = new DescriptorImpl();
 
     public static class DescriptorImpl extends  Descriptor<Entry> {
 
@@ -90,7 +131,7 @@ public final class Entry implements Describable<Entry> {
         }
 
         public ListBoxModel doFillStorageClassItems() {
-            ListBoxModel model = new ListBoxModel();
+            final ListBoxModel model = new ListBoxModel();
             for (String s : storageClasses) {
                 model.add(s, s);
             }
@@ -98,13 +139,12 @@ public final class Entry implements Describable<Entry> {
         }
 
         public ListBoxModel doFillSelectedRegionItems() {
-            ListBoxModel model = new ListBoxModel();
+            final ListBoxModel model = new ListBoxModel();
             for (Regions r : regions) {
                 model.add(r.getName(), r.getName());
             }
             return model;
         }
-
-    };
+    }
 
 }

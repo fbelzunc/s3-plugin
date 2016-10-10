@@ -3,6 +3,9 @@
         <f:entry title="Source" field="sourceFile">
           <f:textbox/>
         </f:entry>
+        <f:entry title="Exclude" field="excludedFile">
+            <f:textbox/>
+        </f:entry>
         <f:entry title="Destination bucket" field="bucket">
           <f:textbox/>
         </f:entry>
@@ -15,6 +18,9 @@
         <f:entry field="noUploadOnFailure" title="No upload on build failure">
 		    <f:checkbox />
         </f:entry>
+        <f:entry field="passTheBuildUnderS3Failure" title="Pass always on failure" help="${helpURL}/help-pass-always-on-failure.html">
+            <f:checkbox name="s3.entry.passTheBuildUnderS3Failure" checked="${e.passTheBuildUnderS3Failure}"/>
+        </f:entry>
         <f:entry field="uploadFromSlave" title="Publish from Slave">
 		    <f:checkbox />
         </f:entry>
@@ -26,6 +32,24 @@
         </f:entry>
         <f:entry field="flatten" title="Flatten directories">
 		    <f:checkbox />
+        </f:entry>
+        <f:entry field="gzipFiles" title="GZIP files">
+            <f:checkbox />
+        </f:entry>
+        <f:entry field="keepForever" title="Keep files forever">
+            <f:checkbox />
+        </f:entry>
+        <f:entry field="showDirectlyInBrowser" title="Show content directly in browser">
+            <f:checkbox />
+        </f:entry>
+        <f:entry title="Metadata tags">
+            <f:repeatableProperty field="userMetadata">
+                <f:entry title="">
+                  <div align="right">
+                    <f:repeatableDeleteButton />
+                  </div>
+                </f:entry>
+            </f:repeatableProperty>
         </f:entry>
 
 </j:jelly>
